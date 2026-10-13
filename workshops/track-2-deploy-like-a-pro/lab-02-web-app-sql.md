@@ -139,6 +139,24 @@ You will see this in action in Lab 3 when we deliberately break a security contr
 - Do not skip the preflight -- the cost estimate is based on the template; preflight is based on what Azure ARM actually plans to do (the two can diverge if existing resources clash).
 - Do not use `az deployment sub create` directly on the generated template -- bypasses the gate, the test step, and the state.json that destroy needs.
 
+## Step 9: Catch availability problems before you generate
+
+Two skills reduce failures caused by wrong assumptions:
+
+- `/azure-resource-availability` queries live Azure APIs to check VM SKU restrictions, runtime/Kubernetes version support, API version compatibility and quota for your region.
+- `/azure-rest-api-reference` looks up official property schemas, required fields and stable API versions for a resource type (no Azure connection required), so templates are not built from guessed property names.
+
+Try it:
+
+```text
+/azure-rest-api-reference Microsoft.Web/sites
+/azure-resource-availability Microsoft.Web/serverfarms in eastus, SKU P1v3
+```
+
+Expected: the first returns the property schema and latest stable API version; the second reports whether the SKU is available and unrestricted, suggesting alternatives if not (needs `az login`).
+
+**No Azure?** Run only the first command, and read `.github/skills/azure-resource-availability/SKILL.md` to see the checks the second performs.
+
 ## Going further
 
 - Template generator agent: `.github/agents/azure-template-generator.agent.md` (search for `inner scope` and `bestpractices`)
