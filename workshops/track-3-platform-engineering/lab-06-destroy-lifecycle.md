@@ -178,3 +178,41 @@ The --action-on-unmanage deleteAll flag removes every resource across all RGs, r
 ## Step 8: Idempotency
 
 If the stack is already gone, the workflow records already-destroyed and exits 0. Safe to re-run.
+
+## Step 9: Local teardown with `/azure-stack-destroy` (optional, needs Azure)
+
+The CI workflow is the governed path. For a sandbox or short-lived demo you can run the same teardown locally with the `azure-stack-destroy` skill; it mirrors `git-ape-destroy.yml`.
+
+```bash
+.github/skills/azure-stack-destroy/scripts/destroy-stack.sh --deployment-id <deployment-id>
+```
+
+The script requires `state.json` under `.azure/deployments/<id>/` and aborts without it. It then:
+
+1. Prints a destroy plan (stack ID, resource group, soft-deletable resources) and asks you to type `destroy` (skip with `--yes`).
+2. Runs `az stack sub delete --action-on-unmanage deleteAll --bypass-stack-out-of-sync-error true`.
+3. Purges soft-deleted Key Vaults and Cognitive Services accounts that are not purge-protected.
+4. Records a terminal status in `state.json` and `metadata.json`.
+
+| Status | Meaning |
+|--------|---------|
+| `destroyed` | Stack gone, soft-deletables purged or absent |
+| `retained-soft-deleted` | Stack gone, but a purge-protected (or failed-purge) resource remains |
+| `partially-destroyed` / `destroy-failed` | Stack delete partly or fully failed |
+| `already-destroyed` | Nothing left to delete |
+
+By default the script runs in fast mode (backgrounds the delete and polls resource groups). Add `--wait` for the CI-equivalent synchronous behaviour.
+
+> Prefer this over `az group delete` for any Git-Ape deployment: it covers multi-resource-group stacks and purges soft-deleted names so you can redeploy immediately.
+
+**No Azure?** Read `.github/skills/azure-stack-destroy/SKILL.md` and compare the status table above with its "Destroy Summary" examples.
+
+## Step 10: The local deploy counterpart: `/azure-stack-deploy`
+
+`azure-stack-deploy` is the matching local deploy path, using the same `az stack sub create --action-on-unmanage deleteAll` primitive as CI:
+
+```bash
+.github/skills/azure-stack-deploy/scripts/deploy-stack.sh --deployment-id <deployment-id>
+```
+
+It writes `state.json` (schemaVersion 1.0, including `stackId`) and updates `metadata.json`. If the stack call fails it falls back to `az deployment sub create` and warns that multi-RG idempotency and soft-delete tracking are lost; pass `--no-fallback` to fail loudly instead.
