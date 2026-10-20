@@ -31,6 +31,7 @@
 | **@azure-principal-architect** | Reviews deployments against the WAF five pillars. Provides architecture recommendations and trade-off analysis. |
 | **@azure-policy-advisor** | Assesses ARM templates against Azure Policy frameworks (CIS, NIST). Recommends policy assignments. |
 | **@azure-iac-exporter** | Exports existing Azure resources to ARM templates. Brings live infrastructure under IaC management. |
+| **@azure-requirements-gatherer** | Gathers deployment requirements through guided questions, validates subscription access, and checks resource naming conflicts before template generation. |
 | **@git-ape-onboarding** | Sets up OIDC, RBAC, GitHub environments, and secrets for CI/CD pipeline integration. |
 
 ## Git-Ape Skills
@@ -47,4 +48,8 @@
 | `/azure-role-selector` | Recommends least-privilege RBAC roles for identities and resources. |
 | `/azure-policy-advisor` | Assesses templates against compliance frameworks and recommends policies. |
 | `/azure-resource-visualizer` | Generates Mermaid architecture diagrams from deployed resource groups. |
+| `/azure-resource-availability` | Queries live Azure APIs to check SKU restrictions, runtime/Kubernetes versions, API versions, and quota before generating or deploying. |
+| `/azure-rest-api-reference` | Looks up exact ARM/REST property schemas and latest stable API versions for a resource type (no Azure connection required). |
+| `/azure-stack-deploy` | Deploys a prepared deployment as a subscription-scoped Azure Deployment Stack and writes `state.json`, matching the CI deploy workflow. |
+| `/azure-stack-destroy` | Deletes a deployment's stack by ID, purges soft-deleted resources, and updates `state.json`; refuses to run without `state.json`. |
 | `/git-ape-onboarding` | Guided setup of OIDC, RBAC, GitHub environments, and secrets. |
