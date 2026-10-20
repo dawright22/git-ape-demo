@@ -138,3 +138,9 @@ The agent surfaces deltas honestly; it does not push the most expensive option.
 
 - Cost-estimator skill: .github/skills/azure-cost-estimator/SKILL.md
 - Principal architect agent: .github/agents/azure-principal-architect.agent.md
+
+### Related skills to try before generating templates
+
+- `/azure-resource-availability` checks live SKU, version, API-version, and quota availability in your region so a design does not fail at deploy time.
+- `/azure-rest-api-reference` looks up exact ARM property schemas and latest stable API versions. It needs no Azure connection, so it works in the no-Azure path.
+- `@azure-requirements-gatherer` asks the guided requirements questions and checks naming conflicts up front.

@@ -178,3 +178,12 @@ The --action-on-unmanage deleteAll flag removes every resource across all RGs, r
 ## Step 8: Idempotency
 
 If the stack is already gone, the workflow records already-destroyed and exits 0. Safe to re-run.
+
+## Step 9: Local equivalents (optional, no extra time)
+
+The CI workflows have local skill counterparts that produce the same `state.json`:
+
+- `/azure-stack-deploy <deployment-id>` runs `az stack sub create --action-on-unmanage deleteAll` and writes `state.json`.
+- `/azure-stack-destroy <deployment-id>` runs `az stack sub delete --action-on-unmanage deleteAll --bypass-stack-out-of-sync-error true`, purges soft-deleted resources that are not purge-protected, and sets a terminal status (`destroyed`, `retained-soft-deleted`, `partially-destroyed`, `destroy-failed`, or `already-destroyed`). It refuses to run without `state.json`.
+
+Prefer the PR-based flow above for shared environments; use the local skills for sandbox teardown. With no Azure access, read `.github/skills/azure-stack-*/SKILL.md` instead.
