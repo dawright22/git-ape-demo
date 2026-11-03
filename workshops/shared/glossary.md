@@ -48,3 +48,7 @@
 | `/azure-policy-advisor` | Assesses templates against compliance frameworks and recommends policies. |
 | `/azure-resource-visualizer` | Generates Mermaid architecture diagrams from deployed resource groups. |
 | `/git-ape-onboarding` | Guided setup of OIDC, RBAC, GitHub environments, and secrets. |
+| `/azure-stack-deploy` | Deploys a prepared deployment as a subscription-scoped Azure Deployment Stack and writes `state.json`. Matches the CI deploy workflow. |
+| `/azure-stack-destroy` | Tears down a deployment by ID: deletes its stack, purges soft-deleted resources, and updates `state.json`. Requires `state.json`. |
+| `/azure-resource-availability` | Queries live Azure APIs for SKU restrictions, version support, and quota before generating or deploying templates. |
+| `/azure-rest-api-reference` | Looks up ARM/REST property schemas and latest stable API versions before editing templates. No Azure connection required. |
