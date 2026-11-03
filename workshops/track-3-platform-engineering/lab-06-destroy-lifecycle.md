@@ -89,12 +89,11 @@ gh run watch
 
 The workflow:
 
-1. Reads the resource group name from `state.json`
-2. Inventories all resources in the group
-3. Deletes subscription-scoped resources first (role assignments)
-4. Deletes the resource group
-5. Updates `state.json` and `metadata.json` to `destroyed`
-6. Commits the updated state to the repo
+1. Reads the deployment stack name (`deploymentId`) and `stackId` from `state.json`
+2. Inventories the stack's managed resources (`az stack sub show`)
+3. Deletes the stack with `az stack sub delete --action-on-unmanage deleteAll`, removing every managed resource across all scopes in one call
+4. Updates `state.json` and `metadata.json` to `destroyed`
+5. Commits the updated state to the repo
 
 ## Step 5: Verify Destruction
 
@@ -161,6 +160,18 @@ az group delete --name <resource-group-name> --yes --no-wait
 - **Explore more skills:** Browse the [full skill catalog](https://github.com/Azure/git-ape)
 - **Architecture review:** Ask `@azure-principal-architect` to review any deployment
 - **Contribute:** Open a PR to improve workshop content or add new scenarios
+
+## Optional: Local Destroy with `/azure-stack-destroy`
+
+For a local CLI or VS Code teardown that matches the CI workflow, use the skill instead of `az group delete`:
+
+```text
+/azure-stack-destroy <deployment-id>
+```
+
+It requires `.azure/deployments/<id>/state.json` (written by `/azure-stack-deploy` or the deploy workflow) and aborts without it. It deletes the stack with `az stack sub delete --action-on-unmanage deleteAll --bypass-stack-out-of-sync-error true`, then purges soft-deleted resources such as Key Vault and Cognitive Services. Resources flagged `purgeProtected: true` in `state.json` are intentionally retained. By default it runs in fast mode; pass `--wait` for the synchronous behaviour CI uses.
+
+**No Azure?** Read the `state.json` of a sample deployment and identify its `stackId`, `managedResources[]`, and which entries are `softDeletable` or `purgeProtected`.
 
 ## Step 6: The destroy contract
 
