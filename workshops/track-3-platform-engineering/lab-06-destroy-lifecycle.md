@@ -178,3 +178,20 @@ The --action-on-unmanage deleteAll flag removes every resource across all RGs, r
 ## Step 8: Idempotency
 
 If the stack is already gone, the workflow records already-destroyed and exits 0. Safe to re-run.
+
+## Step 9: Local destroy with the `azure-stack-destroy` skill (optional)
+
+For short-lived sandbox or demo environments you can tear down a deployment locally instead of through a PR. The `/azure-stack-destroy` skill runs the same `az stack sub delete --action-on-unmanage deleteAll --bypass-stack-out-of-sync-error true` call as the CI workflow, then purges soft-deleted resources (Key Vault, Cognitive Services, etc.) that are not purge-protected.
+
+It requires `.azure/deployments/<id>/state.json`; without it the skill aborts.
+
+```bash
+.github/skills/azure-stack-destroy/scripts/destroy-stack.sh \
+  --deployment-id "<your-deployment-id>"
+```
+
+The script prints a destroy plan and asks you to type `destroy` to confirm (`--yes` skips the prompt). It defaults to fast mode; add `--wait` for the CI-equivalent synchronous behaviour. A PowerShell version (`destroy-stack.ps1 -DeploymentId ...`) is also available.
+
+> Use the PR-based flow above for anything shared or production; the local path skips the human review gate. Don't use raw `az group delete` for Git-Ape deployments: it misses multi-RG resources and soft-delete purges.
+
+> **No Azure?** Read the skill's `SKILL.md` and compare its steps to Step 7; no commands need to be run.
